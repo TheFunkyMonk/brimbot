@@ -55,7 +55,10 @@ client.on("messageCreate", function (message) {
 		commands[command](message, args.slice(command.split('-').length));
 	} else if (command === 'help') {
 		const helpMessage = commandMetadata
-			.map(cmd => `\`${prefix}${cmd.name}\` ${cmd.description}`)
+			.map(cmd => {
+				const formattedPrefix = prefix === "!" ? prefix : `${prefix} `;
+				return `\`${formattedPrefix}${cmd.name}\` ${cmd.description}`;
+			})
 			.join('\n');
 		message.reply(`Here's what I can do:\n${helpMessage}`);
 	} else {
