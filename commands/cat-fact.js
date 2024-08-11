@@ -8,7 +8,10 @@ export default async function (message, args) {
 		const response = await Promise.race([
 			fetch('https://catfact.ninja/fact'),
 			new Promise((_, reject) =>
-				setTimeout(() => reject(new Error('API is taking too long')), 3000)
+				setTimeout(() => {
+					reject(new Error('API is taking too long'))
+					message.reply('Sorry, the API is taking too long and I\'m not very patient. Please try again later.');
+				}, 3000)
 			)
 		]);
 
