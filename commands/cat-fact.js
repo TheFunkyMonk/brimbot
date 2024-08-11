@@ -5,7 +5,13 @@ export const description = "Fetches a random cat fact.";
 
 export default async function (message, args) {
 	try {
-		const response = await fetch('https://catfact.ninja/fact');
+		const response = await Promise.race([
+			fetch('https://catfact.ninja/fact'),
+			new Promise((_, reject) =>
+				setTimeout(() => reject(new Error('API is taking too long')), 3000)
+			)
+		]);
+
 		const data = await response.json();
 		const { fact } = data;
 		message.reply(fact);

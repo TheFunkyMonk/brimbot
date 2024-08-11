@@ -21,10 +21,12 @@ const commandMetadata = [];
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
-	const command = await import(`./commands/${file}`);
-	const commandName = command.name || file.replace('.js', '');
-	commands[commandName] = command.default;
-	commandMetadata.push({ name: commandName, description: command.description || 'No description provided.' });
+	const commandPath = `./commands/${file}`;
+	const command = await import(commandPath);
+	const commandName = file.replace('.js', ''); // File name without extension
+
+	commands[toKebabCase([commandName])] = command.default;
+	commandMetadata.push({ name: toKebabCase([commandName]), description: command.description || 'No description provided.' });
 }
 
 // Event listener for when the bot is ready and logged in
@@ -40,8 +42,13 @@ function toKebabCase(commandArray) {
 	return commandArray.join('-').toLowerCase();
 }
 
+// Function to convert a kebab-case command name to a space-separated command name
+function toSpaceSeparated(commandName) {
+	return commandName.replace(/-/g, ' ');
+}
+
 // Event listener for new messages
-client.on("messageCreate", function (message) {
+client.on("messageCreate", async function (message) {
 	if (message.author.bot) return;
 	const messageContent = message.content.toLowerCase();
 	const prefix = prefixes.find(p => messageContent.startsWith(p.toLowerCase()));
@@ -49,20 +56,20 @@ client.on("messageCreate", function (message) {
 
 	const commandBody = message.content.slice(prefix.length).trim();
 	const args = commandBody.split(' ');
-	const command = toKebabCase(args);
+	const commandName = toKebabCase(args); // Convert command input to kebab-case
 
-	if (commands[command]) {
-		commands[command](message, args.slice(command.split('-').length));
-	} else if (command === 'help') {
+	if (commands[commandName]) {
+		await commands[commandName](message, args.slice(commandName.split('-').length));
+	} else if (commandName === 'help') {
 		const helpMessage = commandMetadata
 			.map(cmd => {
 				const formattedPrefix = prefix === "!" ? prefix : `${prefix} `;
-				return `\`${formattedPrefix}${cmd.name}\` ${cmd.description}`;
+				return `\`${formattedPrefix}${toSpaceSeparated(cmd.name)}\` ${cmd.description}`;
 			})
 			.join('\n');
 		message.reply(`Here's what I can do:\n${helpMessage}`);
 	} else {
-		console.log(`Command "${command}" not found.`);
+		console.log(`Command "${commandName}" not found.`);
 	}
 });
 
