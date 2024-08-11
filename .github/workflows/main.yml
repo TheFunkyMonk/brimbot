@@ -18,5 +18,5 @@ jobs:
             rm -r brimbot
             mkdir brimbot
             cd brimbot
-            git clone git@github.com:TheFunkyMonk/brimbot.git
+            GIT_SSH_COMMAND='ssh -i /root/.ssh/id_ed25519 -o IdentitiesOnly=yes' git clone git@github.com:TheFunkyMonk/brimbot.git
             echo "Deployment successful to DigitalOcean"
