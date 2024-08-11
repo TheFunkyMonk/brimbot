@@ -8,58 +8,58 @@ dotenv.config();
 // Create a new Discord client with specified intents
 const client = new Client({
 	intents: [
-		GatewayIntentBits.Guilds,            // Allows the bot to receive events related to guilds
-		GatewayIntentBits.GuildMessages,     // Allows the bot to receive message events in guilds
-		GatewayIntentBits.MessageContent,    // Allows the bot to read the content of messages
-		GatewayIntentBits.GuildMembers,      // Allows the bot to receive events related to guild members
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.MessageContent,
+		GatewayIntentBits.GuildMembers,
 	]
 });
 
 // Load all command files from the ./commands directory
 const commands = {};
+const commandMetadata = [];
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
-// Iterate over each command file and import it
 for (const file of commandFiles) {
-	const command = await import(`./commands/${file}`); // Dynamically import the command file
-	const commandName = file.replace('.js', ''); // Get the command name by removing the .js extension
-	commands[commandName] = command.default;     // Store the command function in the commands object
+	const command = await import(`./commands/${file}`);
+	const commandName = command.name || file.replace('.js', '');
+	commands[commandName] = command.default;
+	commandMetadata.push({ name: commandName, description: command.description || 'No description provided.' });
 }
 
 // Event listener for when the bot is ready and logged in
 client.on('ready', () => {
-	console.log(`Logged in as ${client.user.tag}!`); // Log the bot's username
+	console.log(`Logged in as ${client.user.tag}!`);
 });
 
-const prefix = "!"; // Define the command prefix
+// Define possible command prefixes
+const prefixes = ["!", "brim"];
 
 // Function to convert a command array (e.g., ['cat', 'fact']) to kebab case (e.g., 'cat-fact')
 function toKebabCase(commandArray) {
-	return commandArray.join('-').toLowerCase(); // Join array elements with '-' and convert to lowercase
+	return commandArray.join('-').toLowerCase();
 }
 
 // Event listener for new messages
 client.on("messageCreate", function (message) {
-	// Ignore messages sent by bots
 	if (message.author.bot) return;
+	const messageContent = message.content.toLowerCase();
+	const prefix = prefixes.find(p => messageContent.startsWith(p.toLowerCase()));
+	if (!prefix) return;
 
-	// Ignore messages that don't start with the command prefix
-	if (!message.content.startsWith(prefix)) return;
-
-	// Extract the command body (e.g., "cat fact") by removing the prefix
-	const commandBody = message.content.slice(prefix.length);
-
-	// Split the command body into arguments (e.g., ['cat', 'fact'])
+	const commandBody = message.content.slice(prefix.length).trim();
 	const args = commandBody.split(' ');
-
-	// Convert the full command to kebab case (e.g., 'cat fact' -> 'cat-fact')
 	const command = toKebabCase(args);
 
-	// If the command exists in the commands object, execute the corresponding function
 	if (commands[command]) {
-		commands[command](message, args.slice(command.split('-').length)); // Pass the message and any extra arguments to the command function
+		commands[command](message, args.slice(command.split('-').length));
+	} else if (command === 'help') {
+		const helpMessage = commandMetadata
+			.map(cmd => `\`${prefix}${cmd.name}\` ${cmd.description}`)
+			.join('\n');
+		message.reply(`Here's what I can do:\n${helpMessage}`);
 	} else {
-		console.log(`Command "${command}" not found.`); // Log if the command does not exist
+		console.log(`Command "${command}" not found.`);
 	}
 });
 
