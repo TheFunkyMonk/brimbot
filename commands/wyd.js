@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const name = "wyd";
-export const description = "Responds with what a cat is doing.";
+export const description = "I tell you what I'm up to.";
 
 export default function(message, args) {
     const filePath = path.join(__dirname, '../data/wyd.json');
