@@ -1,7 +1,7 @@
 import fetch from 'node-fetch';
 
 export const name = "cat fact";
-export const description = "Fetches a random cat fact.";
+export const description = "I tell you a random cat fact.";
 
 export default async function (message, args) {
 	try {
