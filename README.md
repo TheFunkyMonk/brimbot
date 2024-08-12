@@ -125,4 +125,4 @@ Brimbot will automatically load and recognize this new command.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the [WTFPL](https://en.wikipedia.org/wiki/WTFPL) license.
