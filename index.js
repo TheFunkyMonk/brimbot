@@ -66,6 +66,7 @@ client.on("messageCreate", async function (message) {
 		await commands[commandName](message, args.slice(commandName.split('-').length), commandMetadata, prefix);
 	} else {
 		console.log(`Command "${commandName}" not found.`);
+		message.reply(`\`${commandName}\`? I don't know how to do that. Maybe you could [teach me](https://github.com/TheFunkyMonk/brimbot)?`);
 	}
 });
 

@@ -12,5 +12,6 @@ export default async function helpCommand(message, args, commandMetadata, prefix
 		})
 		.join('\n');
 
-	message.reply(`Here's what I can do:\n${helpMessage}`);
+	const githubLink = "You can view or contribute to my code on [GitHub](https://github.com/TheFunkyMonk/brimbot).";
+	message.reply(`Here's what I can do:\n\n${helpMessage}\n\n${githubLink}`);
 }
