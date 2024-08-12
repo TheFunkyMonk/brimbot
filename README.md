@@ -87,7 +87,7 @@ Example of a new command file (`commands/woof.js`):
 export const name = 'woof';
 export const description = 'I bark like a dog.';
 
-export default async function woofCommand(message, args) {
+export default function(message, args) {
 	message.reply('Woof! 🐶');
 }
 ```
