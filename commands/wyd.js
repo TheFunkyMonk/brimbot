@@ -14,5 +14,5 @@ export default function(message, args) {
     const responses = JSON.parse(fs.readFileSync(filePath, 'utf8'));
 
     const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-    message.channel.send(randomResponse);
+    message.reply(randomResponse);
 }
