@@ -42,7 +42,7 @@ client.on('ready', () => {
 });
 
 // Define possible command prefixes
-const prefixes = ["!", "brim", "brimley"];
+const prefixes = ["!", "brim "];
 
 // Sort prefixes in descending order by length to match longer prefixes first
 prefixes.sort((a, b) => b.length - a.length);
