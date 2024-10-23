@@ -58,12 +58,12 @@ client.on("messageCreate", async function (message) {
 
 	// Extract the command and arguments
 	const commandBody = message.content.slice(prefix.length).trim();
-	const args = commandBody.split(' ');
-	const commandName = toKebabCase(args); // Convert command input to kebab-case
+	const args = commandBody.split(/\s+/); // Split by whitespace to keep mentions intact
+	const commandName = toKebabCase([args[0]]); // Convert first word to kebab-case as command name
 
 	// Execute the command if it exists
 	if (commands[commandName]) {
-		await commands[commandName](message, args.slice(commandName.split('-').length), commandMetadata, prefix);
+		await commands[commandName](message, args.slice(1), commandMetadata, prefix); // Pass arguments excluding the command itself
 	} else {
 		console.log(`Command "${commandName}" not found.`);
 		message.reply(`\`${commandName}\`? I don't know how to do that. Maybe you could [teach me](https://github.com/TheFunkyMonk/brimbot)?`);
