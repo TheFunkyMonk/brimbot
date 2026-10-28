@@ -1,11 +1,11 @@
 
 # Brimbot
 
-Brimbot is a Discord bot designed to add fun and utility to your Discord server. It's based on my cat, but you could use it as a base for any kind of bot that responds to messages. It responds to various commands using either the `!` or `brim` prefix. Brimbot is built using Node.js and the Discord.js library.
+Brimbot is a Discord bot designed to add fun and utility to your Discord server. It's based on my cat, but you could use it as a base for any kind of bot that responds to messages. It responds to commands that start with `!`, so mentioning Brim in conversation never wakes it. Brimbot is built using Node.js and the Discord.js library.
 
 ## Features
 
-- Supports multiple command prefixes (`!`, `brim`)
+- Responds only to `!` commands
 - Automatically loads commands from the `commands` directory
 - Easily extendable with new commands
 - Modular architecture with separate command files
@@ -75,19 +75,13 @@ Only run one copy of the bot at a time. Two copies logged in with the same token
 
 Brimbot supports various commands, including:
 
-- `!help` or `brim help`: Displays a list of available commands.
-- `!cat fact` or `brim cat fact`: Responds with a random cat fact.
+- `!help`: Displays a list of available commands.
+- `!cat fact`: Responds with a random cat fact.
 
-To use a command, simply type the command prefix followed by the command name, for example:
+To use a command, type `!` followed by the command name, for example:
 
 ```
 !help
-```
-
-Or:
-
-```
-brim help
 ```
 
 ### Adding New Commands

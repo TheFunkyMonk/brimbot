@@ -41,20 +41,16 @@ client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
 });
 
-// Define possible command prefixes
-const prefixes = ["!", "brim "];
-
-// Sort prefixes in descending order by length to match longer prefixes first
-prefixes.sort((a, b) => b.length - a.length);
+// Commands start with "!" and nothing else, so mentioning Brim or Brimley in
+// conversation never wakes the bot. A letter must follow straight away, so
+// "!!!" or a lone "!" in ordinary chat is left alone too.
+const prefix = "!";
+const commandPattern = /^![a-z]/i;
 
 // Event listener for new messages
 client.on("messageCreate", async function (message) {
 	if (message.author.bot) return;
-	const messageContent = message.content.toLowerCase();
-
-	// Find the longest prefix that matches the start of the message
-	const prefix = prefixes.find(p => messageContent.startsWith(p.toLowerCase()));
-	if (!prefix) return;
+	if (!commandPattern.test(message.content)) return;
 
 	// Extract the command and arguments
 	const commandBody = message.content.slice(prefix.length).trim();
