@@ -1,8 +1,9 @@
-import { Client, Collection, Events, GatewayIntentBits, MessageFlags } from 'discord.js';
+import { Client, Collection, Events, GatewayIntentBits, MessageFlags, Partials } from 'discord.js';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { trackEmojis } from './utils/emoji-tracking.js';
 
 // Load environment variables from the .env file
 dotenv.config();
@@ -11,10 +12,23 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Every command is a slash command, so Brimbot needs no permission to read
-// messages: it never sees ordinary chat, and mentioning Brim or Brimley can't
-// wake it.
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+// Every command is a slash command, so nothing said in chat can wake Brimbot.
+// It does read messages and reactions, for one reason: to count the server's
+// custom emojis for /emojis (utils/emoji-tracking.js). Message Content is the
+// one privileged intent, switched on in the Developer Portal. The partials
+// let it hear about reactions on messages from before it started.
+const client = new Client({
+	intents: [
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildEmojisAndStickers,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.GuildMessageReactions,
+		GatewayIntentBits.MessageContent,
+	],
+	partials: [Partials.Message, Partials.Channel, Partials.Reaction],
+});
+
+trackEmojis(client);
 
 // Load every command from the ./commands directory. Each file exports `data`
 // (its definition), `execute`, and `autocomplete` if an option suggests

@@ -1,14 +1,14 @@
 
 # Brimbot
 
-Brimbot is a Discord bot designed to add fun and utility to your Discord server. It's based on my cat, but you could use it as a base for any kind of bot. Everything it does is a slash command: type `/` in Discord to see them. It never reads ordinary chat, so mentioning Brim in conversation never wakes it. Brimbot is built using Node.js and the Discord.js library.
+Brimbot is a Discord bot designed to add fun and utility to your Discord server. It's based on my cat, but you could use it as a base for any kind of bot. Everything it does is a slash command: type `/` in Discord to see them, so mentioning Brim in conversation never wakes it. It does read messages and reactions, for one thing only: counting the server's custom emojis for `/emojis`. It stores those counts and nothing else, never the text of a message or who sent it. Brimbot is built using Node.js and the Discord.js library.
 
 ## Features
 
 - Slash commands, listed in Discord's `/` menu with their descriptions
 - Automatically loads commands from the `commands` directory, and registers them with Discord on every start
 - Easily extendable with new commands, one file each
-- Needs no privileged permissions: it never reads messages
+- Counts the server's custom emojis in messages and reactions, kept in SQLite
 
 ## Getting Started
 
@@ -19,7 +19,7 @@ To run Brimbot, you'll need:
 - [Node.js](https://nodejs.org/) (version 20.11)
 - A [Discord account](https://discord.com/)
 - A [Discord server](https://support.discord.com/hc/en-us/articles/204849977-How-do-I-create-a-server-) where you have administrative rights
-- A [Discord bot](https://discordjs.guide/preparations/setting-up-a-bot-application.html#creating-your-bot) added to your server with the `bot` and `applications.commands` scopes. It needs no privileged gateway intents.
+- A [Discord bot](https://discordjs.guide/preparations/setting-up-a-bot-application.html#creating-your-bot) added to your server with the `bot` and `applications.commands` scopes, with **Message Content Intent** switched on in the Developer Portal. Its role needs View Channels and Read Message History in the channels it should count.
 
 ### Installation
 
@@ -67,6 +67,8 @@ bin/kamal app logs -f
 
 `bin/kamal` asks for the Bitwarden master password before it starts, then runs Kamal. Changes must be committed before a deploy, since Kamal builds from a clean clone of the last commit.
 
+The emoji counts live in `storage/brimbot.sqlite`, on a Kamal volume (`brimbot_storage`) in production, so deploys keep them.
+
 Only run one copy of the bot at a time. Two copies logged in with the same token will both answer every command.
 
 ## Usage
@@ -78,6 +80,8 @@ Type `/` in Discord to see every command. They include:
 - `/help`: Lists what Brimbot can do.
 - `/cat-fact`: Responds with a random cat fact.
 - `/pfp`: Shows someone's profile picture at full size.
+- `/emojis`: The server's most used custom emojis over the last 7, 30 or 90 days, the last year, or all time, counting messages (once each, however many times a message uses it) and reactions.
+- `/emoji-backfill`: Counts emojis in the messages sent before Brimbot started counting. Only people who can manage the server see it. Safe to run again: nothing is counted twice.
 - `/telescope`: Says whether tonight is worth taking the telescope out, from [Astronomy Buddy](https://github.com/TheFunkyMonk/astronomy-buddy-api). Pick a city as you type and, optionally, a telescope level.
 
 ### Adding New Commands

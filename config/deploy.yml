@@ -17,6 +17,10 @@ servers:
 
 primary_role: bot
 
+# The emoji counts' SQLite database, kept across deploys.
+volumes:
+  - "brimbot_storage:/app/storage"
+
 ssh:
   user: root
   keys:
