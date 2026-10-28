@@ -2,7 +2,7 @@ import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { emojiTotals } from '../utils/emoji-store.js';
 
 const DAY = 24 * 60 * 60 * 1000;
-const SHOWN = 15;
+const SHOWN = 10;
 
 const PERIODS = {
 	'7': { label: 'the last 7 days', days: 7 },
