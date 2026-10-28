@@ -1,30 +1,21 @@
-import fetch from 'node-fetch';
+import { SlashCommandBuilder } from 'discord.js';
 
-export const name = "cat fact";
-export const description = "I tell you a random cat fact.";
+export const data = new SlashCommandBuilder()
+	.setName('cat-fact')
+	.setDescription('I tell you a random cat fact.');
 
-export default async function (message, args) {
-	let timeoutId;
+export async function execute(interaction) {
+	// Deferred because Discord wants a first answer within three seconds,
+	// and catfact.ninja is not always that quick.
+	await interaction.deferReply();
 
 	try {
-		const response = await Promise.race([
-			new Promise((resolve, reject) => {
-				timeoutId = setTimeout(() => {
-					reject(new Error('API is taking too long'));
-					message.reply('Sorry, the API is taking too long and I\'m not very patient. Please try again later.');
-				}, 3000);
-			}),
-			fetch('https://catfact.ninja/fact').then(res => {
-				clearTimeout(timeoutId); // Stop the timeout if fetch succeeds
-				return res;
-			})
-		]);
-
-		const data = await response.json();
-		const { fact } = data;
-		message.reply(fact);
+		const response = await fetch('https://catfact.ninja/fact', { signal: AbortSignal.timeout(5000) });
+		if (!response.ok) throw new Error(`catfact.ninja answered ${response.status}`);
+		const { fact } = await response.json();
+		await interaction.editReply(fact);
 	} catch (error) {
 		console.error('Error fetching cat fact:', error);
-		message.reply('Sorry, I couldn\'t fetch a cat fact right now. Please try again later.');
+		await interaction.editReply("Sorry, I couldn't fetch a cat fact right now. Please try again later.");
 	}
 }

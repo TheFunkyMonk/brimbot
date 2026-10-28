@@ -1,18 +1,14 @@
+import { SlashCommandBuilder } from 'discord.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Define __dirname manually
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const responses = JSON.parse(fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '../data/wyd.json'), 'utf8'));
 
-export const name = "wyd";
-export const description = "I tell you what I'm up to.";
+export const data = new SlashCommandBuilder()
+	.setName('wyd')
+	.setDescription("I tell you what I'm up to.");
 
-export default function(message, args) {
-    const filePath = path.join(__dirname, '../data/wyd.json');
-    const responses = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-
-    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-    message.reply(randomResponse);
+export async function execute(interaction) {
+	await interaction.reply(responses[Math.floor(Math.random() * responses.length)]);
 }

@@ -1,6 +1,9 @@
-export const name = "meow";
-export const description = "I meow.";
+import { SlashCommandBuilder } from 'discord.js';
 
-export default function(message, args) {
-	message.reply('Meow.');
+export const data = new SlashCommandBuilder()
+	.setName('meow')
+	.setDescription('I meow.');
+
+export async function execute(interaction) {
+	await interaction.reply('Meow.');
 }
