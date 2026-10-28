@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits } from 'discord.js';
+import { Client, Events, GatewayIntentBits } from 'discord.js';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
@@ -36,9 +36,48 @@ for (const file of commandFiles) {
 	commandMetadata.push({ name: toKebabCase([commandName]), description: command.description || 'No description provided.' });
 }
 
+// Load all slash commands from the ./slash directory. Each exports `data`
+// (its definition), `execute`, and `autocomplete` if an option suggests.
+const slashCommands = {};
+const slashFiles = fs.readdirSync(path.join(__dirname, 'slash')).filter(file => file.endsWith('.js'));
+
+for (const file of slashFiles) {
+	const command = await import(path.join(__dirname, 'slash', file));
+	slashCommands[command.data.name] = command;
+	commandMetadata.push({ name: command.data.name, description: command.data.description, slash: true });
+}
+
 // Event listener for when the bot is ready and logged in
-client.on('ready', () => {
+client.on(Events.ClientReady, async () => {
 	console.log(`Logged in as ${client.user.tag}!`);
+
+	// Tells Discord which slash commands exist, on every start, so the list in
+	// Discord always matches this code. It replaces the whole set, so a file
+	// removed from ./slash disappears from Discord too.
+	try {
+		await client.application.commands.set(Object.values(slashCommands).map(command => command.data.toJSON()));
+		console.log(`Registered slash commands: ${Object.keys(slashCommands).join(', ')}`);
+	} catch (error) {
+		console.error('Error registering slash commands:', error);
+	}
+});
+
+// Event listener for slash commands and their autocomplete suggestions
+client.on(Events.InteractionCreate, async interaction => {
+	if (!interaction.isChatInputCommand() && !interaction.isAutocomplete()) return;
+
+	const command = slashCommands[interaction.commandName];
+	if (!command) return;
+
+	try {
+		if (interaction.isAutocomplete()) {
+			await command.autocomplete?.(interaction);
+		} else {
+			await command.execute(interaction);
+		}
+	} catch (error) {
+		console.error(`Error running /${interaction.commandName}:`, error);
+	}
 });
 
 // Commands start with "!" and nothing else, so mentioning Brim or Brimley in
