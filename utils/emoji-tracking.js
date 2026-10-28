@@ -1,4 +1,4 @@
-import { Events, PermissionFlagsBits, SnowflakeUtil } from 'discord.js';
+import { Events, SnowflakeUtil } from 'discord.js';
 import { clearReactions, forgetMessage, setMessageEmojis, setReactionCount, transaction } from './emoji-store.js';
 
 // Counts the server's own custom emojis, in messages and in reactions, for
@@ -24,18 +24,6 @@ export function recordMessage(message) {
 		.filter(id => isOwnEmoji(message.guild, id));
 
 	setMessageEmojis(message.guild.id, message.id, sentAt(message.id), ids);
-}
-
-// A fetched message carries its reactions and how many people chose each,
-// which is all the backfill needs.
-export function recordReactions(message) {
-	if (!message.guild) return;
-
-	for (const reaction of message.reactions.cache.values()) {
-		if (isOwnEmoji(message.guild, reaction.emoji.id)) {
-			setReactionCount(message.guild.id, message.id, sentAt(message.id), reaction.emoji.id, reaction.count);
-		}
-	}
 }
 
 export function trackEmojis(client) {
@@ -84,65 +72,4 @@ export function trackEmojis(client) {
 	client.on(Events.MessageReactionRemove, reactionChanged);
 	client.on(Events.MessageReactionRemoveAll, message => clearReactions(message.id));
 	client.on(Events.MessageReactionRemoveEmoji, reaction => clearReactions(reaction.message.id, reaction.emoji.id));
-}
-
-// Reads every message Brimbot can see in the server, oldest included, and
-// counts it as though it had just arrived. Safe to run more than once.
-export async function backfill(guild, onProgress = () => {}) {
-	const channels = await readableChannels(guild);
-	let messages = 0;
-
-	for (const [index, channel] of channels.entries()) {
-		let before;
-
-		while (true) {
-			let page;
-			try {
-				page = await channel.messages.fetch({ limit: 100, before });
-			} catch (error) {
-				console.error(`Error reading #${channel.name}:`, error.message);
-				break;
-			}
-			if (!page.size) break;
-
-			transaction(() => {
-				for (const message of page.values()) {
-					recordMessage(message);
-					recordReactions(message);
-				}
-			});
-
-			messages += page.size;
-			before = page.reduce((oldest, message) => (BigInt(message.id) < BigInt(oldest) ? message.id : oldest), page.firstKey());
-			onProgress({ channel, done: index, total: channels.length, messages });
-
-			if (page.size < 100) break;
-		}
-	}
-
-	return { channels: channels.length, messages };
-}
-
-// Text channels Brimbot may read the history of, and the threads under them,
-// archived public ones included.
-async function readableChannels(guild) {
-	const me = guild.members.me ?? await guild.members.fetchMe();
-	const canRead = channel => channel.permissionsFor(me)?.has([PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory]);
-	const found = new Map();
-
-	for (const channel of guild.channels.cache.values()) {
-		if (channel.isThread() || !canRead(channel)) continue;
-		if (channel.isTextBased()) found.set(channel.id, channel);
-
-		if (channel.threads) {
-			const active = await channel.threads.fetchActive().catch(() => null);
-			const archived = await channel.threads.fetchArchived({ type: 'public', fetchAll: true }).catch(() => null);
-
-			for (const thread of [...(active?.threads.values() ?? []), ...(archived?.threads.values() ?? [])]) {
-				if (thread.parentId === channel.id) found.set(thread.id, thread);
-			}
-		}
-	}
-
-	return [...found.values()];
 }

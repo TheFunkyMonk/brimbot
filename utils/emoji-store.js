@@ -9,9 +9,10 @@ import { fileURLToPath } from 'url';
 // One row per message, emoji and kind, holding a count rather than an event:
 // `message` is 1 if the emoji is in the message's text (a message with the
 // emoji five times still counts once), `reaction` is how many people reacted
-// with it. Writing the count for a message is the same operation whether it
-// comes from a live event or the backfill, so running the backfill twice, or
-// over messages already counted live, never counts anything twice.
+// with it. Writing a count rather than adding one means a repeated or missed
+// event never leaves the total wrong for long. The history from before
+// Brimbot counted was read in once, by a command since removed (git history
+// has it as commands/emoji-backfill.js).
 //
 // used_at is when the message was sent, reactions included, so a time range
 // means "messages from those days and the reactions on them".
@@ -91,8 +92,8 @@ export function emojiTotals(guildId, since) {
 	return statements.totals.all(guildId, since);
 }
 
-// Nests: the backfill wraps a page of messages in one, and each message's
-// own write joins it rather than starting a second.
+// Nests: a bulk delete wraps its messages in one, and any write inside joins
+// it rather than starting a second.
 let depth = 0;
 
 export function transaction(work) {

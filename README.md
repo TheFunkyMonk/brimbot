@@ -81,7 +81,6 @@ Type `/` in Discord to see every command. They include:
 - `/cat-fact`: Responds with a random cat fact.
 - `/pfp`: Shows someone's profile picture at full size.
 - `/emojis`: The server's most used custom emojis over the last 7, 30 or 90 days, the last year, or all time, counting messages (once each, however many times a message uses it) and reactions.
-- `/emoji-backfill`: Counts emojis in the messages sent before Brimbot started counting. Only people who can manage the server see it. Safe to run again: nothing is counted twice.
 - `/telescope`: Says whether tonight is worth taking the telescope out, from [Astronomy Buddy](https://github.com/TheFunkyMonk/astronomy-buddy-api). Pick a city as you type and, optionally, a telescope level.
 
 ### Adding New Commands
