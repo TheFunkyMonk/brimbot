@@ -1,0 +1,44 @@
+# Deployed with Kamal to the same server as BookPocket. Brimbot only talks
+# out to Discord and serves nothing, so it skips kamal-proxy entirely and
+# never touches BookPocket's.
+service: brimbot
+
+image: thefunkymonk/brimbot
+
+servers:
+  bot:
+    hosts:
+      - 62.238.60.170
+    proxy: false
+    # A cap so a leak here can never take memory from BookPocket. It uses
+    # about 65MB.
+    options:
+      memory: 256m
+
+primary_role: bot
+
+ssh:
+  user: root
+  keys:
+    - ~/.ssh/id_ed25519_bookpocket
+
+registry:
+  server: ghcr.io
+  username: TheFunkyMonk
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+env:
+  secret:
+    - BOT_TOKEN
+
+# Built on the server, as BookPocket is, rather than cross-built for amd64 on
+# an Apple Silicon Mac.
+builder:
+  arch: amd64
+  remote: ssh://root@62.238.60.170
+
+logging:
+  options:
+    max-size: "10m"
+    max-file: "3"

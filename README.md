@@ -56,6 +56,18 @@ npm start
 
 Brimbot should now be online and responding to commands in your Discord server.
 
+### Deploying
+
+Brimbot runs in Docker, deployed with [Kamal](https://kamal-deploy.org) (`config/deploy.yml`). The bot token and the container registry password come from a Bitwarden item through `.kamal/secrets`, which holds names only.
+
+```bash
+kamal setup    # the first time
+kamal deploy   # after that
+kamal app logs -f
+```
+
+Only run one copy of the bot at a time. Two copies logged in with the same token will both answer every command.
+
 ## Usage
 
 ### Available Commands

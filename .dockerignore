@@ -1,0 +1,6 @@
+.git
+.env
+.kamal
+config
+node_modules
+npm-debug.log*
