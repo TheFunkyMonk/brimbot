@@ -1,7 +1,7 @@
 import { EmbedBuilder } from 'discord.js';
 
-// Asks Astronomy Buddy's API about tonight and lays out its answer, for both
-// !telescope and /telescope. The API decides everything and writes every
+// Asks Astronomy Buddy's API about tonight and lays out its answer, for
+// /telescope. The API decides everything and writes every
 // sentence; see "Rules for consumers" in that repo's README: worthObserving
 // answers "should I go out?", severity picks the colour, and the copy is
 // shown as it comes.
@@ -37,13 +37,6 @@ const ICONS = {
 
 export function defaultLevel() {
 	return process.env.TELESCOPE_LEVEL || 'entry';
-}
-
-// The observing location saved in the environment, or null if there is none.
-export function homePlace() {
-	const { OBSERVING_LATITUDE: latitude, OBSERVING_LONGITUDE: longitude, OBSERVING_ELEVATION: elevation } = process.env;
-	if (!latitude || !longitude || !elevation) return null;
-	return { latitude, longitude, elevation };
 }
 
 export async function fetchViewing({ latitude, longitude, elevation }, viewingLevel) {

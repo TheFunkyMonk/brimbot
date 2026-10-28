@@ -77,8 +77,7 @@ Brimbot supports various commands, including:
 
 - `!help`: Displays a list of available commands.
 - `!cat fact`: Responds with a random cat fact.
-- `/telescope`: Says whether tonight is worth taking the telescope out, from [Astronomy Buddy](https://github.com/TheFunkyMonk/astronomy-buddy-api). Pick a city as you type (or leave it empty for home) and, optionally, a telescope level.
-- `!telescope`: The same for home. Add a level (`naked eye`, `entry`, `intermediate`, `advanced`) to ask for a different setup. Home is `OBSERVING_LATITUDE`, `OBSERVING_LONGITUDE` and `OBSERVING_ELEVATION` (metres) in `.env`.
+- `/telescope`: Says whether tonight is worth taking the telescope out, from [Astronomy Buddy](https://github.com/TheFunkyMonk/astronomy-buddy-api). Pick a city as you type and, optionally, a telescope level.
 
 To use a command, type `!` followed by the command name, for example:
 
