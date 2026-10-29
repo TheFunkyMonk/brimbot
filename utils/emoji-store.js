@@ -38,6 +38,8 @@ db.exec(`
 
 	-- The one place a person is stored: for /bisbopt, who wrote each message
 	-- that got :bisbopt: reactions, and how many. Nothing for other emojis.
+	-- The history was read in once, by commands/bisbopt-backfill.js, since
+	-- removed.
 	CREATE TABLE IF NOT EXISTS bisbopts (
 		guild_id TEXT NOT NULL,
 		message_id TEXT PRIMARY KEY,
