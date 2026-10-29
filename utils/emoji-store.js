@@ -35,6 +35,17 @@ db.exec(`
 	);
 
 	CREATE INDEX IF NOT EXISTS emoji_uses_by_guild_and_time ON emoji_uses (guild_id, used_at);
+
+	-- The one place a person is stored: for /bisbopt, who wrote each message
+	-- that got :bisbopt: reactions, and how many. Nothing for other emojis.
+	CREATE TABLE IF NOT EXISTS bisbopts (
+		guild_id TEXT NOT NULL,
+		message_id TEXT PRIMARY KEY,
+		author_id TEXT NOT NULL,
+		reactions INTEGER NOT NULL CHECK (reactions > 0)
+	);
+
+	CREATE INDEX IF NOT EXISTS bisbopts_by_guild ON bisbopts (guild_id);
 `);
 
 const statements = {
@@ -44,6 +55,15 @@ const statements = {
 	deleteReaction: db.prepare(`DELETE FROM emoji_uses WHERE message_id = ? AND emoji_id = ? AND kind = 'reaction'`),
 	deleteReactions: db.prepare(`DELETE FROM emoji_uses WHERE message_id = ? AND kind = 'reaction'`),
 	forgetMessage: db.prepare(`DELETE FROM emoji_uses WHERE message_id = ?`),
+	upsertBisbopt: db.prepare(`INSERT OR REPLACE INTO bisbopts (guild_id, message_id, author_id, reactions) VALUES (?, ?, ?, ?)`),
+	forgetBisbopt: db.prepare(`DELETE FROM bisbopts WHERE message_id = ?`),
+	bisboptTotals: db.prepare(`
+		SELECT author_id, SUM(reactions) AS reactions, COUNT(*) AS messages
+		FROM bisbopts
+		WHERE guild_id = ?
+		GROUP BY author_id
+		ORDER BY reactions DESC, messages DESC
+	`),
 	totals: db.prepare(`
 		SELECT emoji_id,
 			SUM(CASE WHEN kind = 'message' THEN uses ELSE 0 END) AS in_messages,
@@ -85,6 +105,25 @@ export function clearReactions(messageId, emojiId = null) {
 
 export function forgetMessage(messageId) {
 	statements.forgetMessage.run(messageId);
+	statements.forgetBisbopt.run(messageId);
+}
+
+// How many :bisbopt: reactions a message has, and who wrote it.
+export function setBisbopts(guildId, messageId, authorId, count) {
+	if (count > 0) {
+		statements.upsertBisbopt.run(guildId, messageId, authorId, count);
+	} else {
+		statements.forgetBisbopt.run(messageId);
+	}
+}
+
+export function clearBisbopts(messageId) {
+	statements.forgetBisbopt.run(messageId);
+}
+
+// Each person whose messages got :bisbopt: reactions, most first.
+export function bisboptTotals(guildId) {
+	return statements.bisboptTotals.all(guildId);
 }
 
 // Every emoji used since `since` (a timestamp, 0 for all time), most first.

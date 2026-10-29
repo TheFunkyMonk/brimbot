@@ -1,7 +1,7 @@
 
 # Brimbot
 
-Brimbot is a Discord bot designed to add fun and utility to your Discord server. It's based on my cat, but you could use it as a base for any kind of bot. Everything it does is a slash command: type `/` in Discord to see them, so mentioning Brim in conversation never wakes it. It does read messages and reactions, for one thing only: counting the server's custom emojis for `/emojis`. It stores those counts and nothing else, never the text of a message or who sent it. Brimbot is built using Node.js and the Discord.js library.
+Brimbot is a Discord bot designed to add fun and utility to your Discord server. It's based on my cat, but you could use it as a base for any kind of bot. Everything it does is a slash command: type `/` in Discord to see them, so mentioning Brim in conversation never wakes it. It does read messages and reactions, for one thing only: counting the server's custom emojis for `/emojis` and `/bisbopt`. It stores those counts and never the text of a message. The one time it keeps who sent a message is when somebody reacts to it with `:bisbopt:`, for `/bisbopt`. Brimbot is built using Node.js and the Discord.js library.
 
 ## Features
 
@@ -81,6 +81,7 @@ Type `/` in Discord to see every command. They include:
 - `/cat-fact`: Responds with a random cat fact.
 - `/pfp`: Shows someone's profile picture at full size.
 - `/emojis`: The server's most used custom emojis over the last 7, 30 or 90 days, the last year, or all time, counting messages (once each, however many times a message uses it) and reactions.
+- `/bisbopt`: How many `:bisbopt:` reactions each person's messages have earned, all time. The emoji began as a typo of "is opt in" and is the server's reaction to a typo.
 - `/telescope`: Says whether tonight is worth taking the telescope out, from [Astronomy Buddy](https://github.com/TheFunkyMonk/astronomy-buddy-api). Pick a city as you type and, optionally, a telescope level.
 
 ### Adding New Commands
