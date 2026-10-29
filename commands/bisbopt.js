@@ -1,8 +1,9 @@
 import { EmbedBuilder, SlashCommandBuilder } from 'discord.js';
 import { bisboptTotals } from '../utils/emoji-store.js';
 
-// An embed fits about this many lines before Discord cuts it off.
-const SHOWN = 25;
+// One embed per person, so each can carry their picture, and Discord allows
+// ten embeds in a message.
+const SHOWN = 10;
 
 export const data = new SlashCommandBuilder()
 	.setName('bisbopt')
@@ -20,18 +21,36 @@ export async function execute(interaction) {
 		return interaction.reply(`Nobody has been ${emoji}'d yet, as far as I've counted.`);
 	}
 
-	// Mentions inside an embed show the name without pinging anybody.
-	const lines = rows.slice(0, SHOWN).map((row, index) => {
+	// Looking people up can take longer than the three seconds Discord waits
+	// for a first answer.
+	await interaction.deferReply();
+
+	const shown = rows.slice(0, SHOWN);
+	const people = await Promise.all(shown.map(row => findPerson(interaction, row.author_id)));
+
+	const embeds = shown.map((row, index) => {
 		const messages = `${row.messages} ${row.messages === 1 ? 'message' : 'messages'}`;
-		return `${index + 1}. <@${row.author_id}> **${row.reactions}**, on ${messages}`;
+		return new EmbedBuilder().setAuthor({
+			name: `${index + 1}. ${people[index].name}: ${row.reactions}, on ${messages}`,
+			iconURL: people[index].avatar,
+		});
 	});
-	if (rows.length > SHOWN) lines.push(`…and ${rows.length - SHOWN} more.`);
 
-	const embed = new EmbedBuilder()
-		.setTitle(`${emoji.name} counter`)
-		.setThumbnail(emoji.imageURL())
-		.setDescription(lines.join('\n'))
-		.setFooter({ text: 'Every :bisbopt: reaction on your messages, all time.' });
+	const others = rows.length - shown.length;
+	if (others) {
+		embeds.at(-1).setFooter({ text: `…and ${others} more ${others === 1 ? 'person' : 'people'}.` });
+	}
 
-	await interaction.reply({ embeds: [embed] });
+	await interaction.editReply({ content: `${emoji} **bisbopt counter**: reactions on each person's messages, all time`, embeds });
+}
+
+// Their name and picture in this server, or everywhere if they've left it.
+async function findPerson(interaction, userId) {
+	const member = await interaction.guild.members.fetch(userId).catch(() => null);
+	if (member) return { name: member.displayName, avatar: member.displayAvatarURL() };
+
+	const user = await interaction.client.users.fetch(userId).catch(() => null);
+	if (user) return { name: user.displayName, avatar: user.displayAvatarURL() };
+
+	return { name: 'Somebody I can no longer find', avatar: undefined };
 }

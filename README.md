@@ -81,7 +81,7 @@ Type `/` in Discord to see every command. They include:
 - `/cat-fact`: Responds with a random cat fact.
 - `/pfp`: Shows someone's profile picture at full size.
 - `/emojis`: The server's most used custom emojis over the last 7, 30 or 90 days, the last year, or all time, counting messages (once each, however many times a message uses it) and reactions.
-- `/bisbopt`: How many `:bisbopt:` reactions each person's messages have earned, all time. The emoji began as a typo of "is opt in" and is the server's reaction to a typo.
+- `/bisbopt`: The 10 people whose messages have earned the most `:bisbopt:` reactions, all time, with their pictures. The emoji began as a typo of "is opt in" and is the server's reaction to a typo.
 - `/telescope`: Says whether tonight is worth taking the telescope out, from [Astronomy Buddy](https://github.com/TheFunkyMonk/astronomy-buddy-api). Pick a city as you type and, optionally, a telescope level.
 
 ### Adding New Commands
